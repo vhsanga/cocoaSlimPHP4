@@ -38,18 +38,16 @@ return function (App $app) {
 
     $app->post('/login', function (Request $request, Response $response) use($app) {               
         $usuarioRepo = new UsuarioRepositorio;
-        $params = (array)$request->getParsedBody();
-        //$usuario = $params['usuario'];
-        //$pass = $params['pass'];
-        //$usuarios = $usuarioRepo->login($usuario, $pass);        
+        $params = (array)$request->getParsedBody();    
         $input = json_decode(file_get_contents('php://input'));
-
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
         }
-        $response->getBody()->write(json_encode($input));        
-        return $response
-                ->withHeader('Content-Type', 'application/json');
+        $usuario = $input->usuario;
+        $pass = $input->pass;
+        $usuarios = $usuarioRepo->login($usuario, $pass);        
+        $response->getBody()->write($usuarios);        
+        return $response->withHeader('Content-Type', 'application/json');;
     });
 
 
