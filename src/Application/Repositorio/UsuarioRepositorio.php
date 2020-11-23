@@ -11,6 +11,7 @@ class UsuarioRepositorio
     protected $tabla="usuario";
     protected $tablaUsarioPersona="usuariopersona";
     protected $tablaPersona="persona";
+    protected $ESTADO_ACTVO="ACT";
 
     private function leerResultado($result, $arrAtrib){  
         $usuarios = array();       
@@ -97,7 +98,9 @@ class UsuarioRepositorio
     }
 
 
-    function login($usuario, $pass){
+    function login($input){
+        $usuario = $input->usuario;
+        $pass = $input->pass;
         $usuarios = array();               
         $response = array();
         $statusCode=500;
@@ -123,13 +126,70 @@ class UsuarioRepositorio
                 $response["message"]["type"] = "DataBase"; 
                 $response["message"]["description"] = $conn->error; 
             }                             
-            CloseCon($conn);    
+            $stmt->close();
+            $conn->close();    
         } catch (Exception $e) {
             $response["message"]["type"] = "DataBase"; 
             $response["message"]["description"] = $e->getMessage(); 
         }
         $response["statusCode"] = $statusCode;	   
 	    $response["data"] = $usuarios;
+        return json_encode($response);
+    }
+
+
+    function registrarUsuario($input){
+        $usuario = $input->usuario;
+        $pass = $input->pass;
+        /*
+        $identificacion = $input->identificacion;
+        $nombres = $input->nombres;
+        $apellidos = $input->apellidos;
+        $fnacimiento = $input->fnacimiento;
+        $direccion = $input->direccion;
+        $telefono = $input->telefono;
+        $correo = $input->correo;
+        $tipoidentificacion = $input->tipoidentificacion;*/
+        $data = array();               
+        $response = array();
+        $statusCode=500;
+        $mensaje='';	
+        try {
+            $conn=OpenCon();            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, contrasenia, estadousuario) values (?,?,?)  ');
+            $stmt->bind_param('sss', $usuario, $pass, $this->ESTADO_ACTVO); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->execute();
+            $idUsuario = $conn->insert_id;
+
+            $stmt = $conn->prepare('INSERT INTO '.$this->tablaPersona.' (identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion) values (?,?,?,?,?,?,?,?)  ');
+            $stmt->bind_param('ssssssss', $identificacion, $nombres, $apellidos, $fnacimiento, $direccion, $telefono, $correo, $tipoidentificacion); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->execute();
+            $idPersona = $conn->insert_id;
+
+            $stmt = $conn->prepare('INSERT INTO '.$this->tablaUsarioPersona.' (usuario, persona) values (?,?)  ');
+            $stmt->bind_param('ii', $idUsuario, $idPersona); // 'i' specifies the variable type => 'entero' a las dos variables            
+            $stmt->execute();
+            $idPersona = $conn->insert_id;
+           
+                if ($result->num_rows > 0) {
+                    $usuarios = $this->leerResultado($result, $this->atributosLogin); 
+                    $statusCode=200; 
+                    $response["message"]["type"] = "OK"; 
+                    $response["message"]["description"] = "Ingreso Correcto"; 
+                }else{
+                    $statusCode=403; 
+                    $response["message"]["type"] = "ERR"; 
+                    $response["message"]["description"] = "Credenciales Incorrectas";
+                }                                
+                                         
+            $stmt->close();
+            $conn->close();    
+        } catch (Exception $e) {
+            $response["message"]["type"] = "DataBase"; 
+            $response["message"]["description"] = $e->getMessage(); 
+        }
+        $response["statusCode"] = $statusCode;	   
+	    $response["data"] = $data;
         return json_encode($response);
     }
 

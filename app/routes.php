@@ -42,10 +42,20 @@ return function (App $app) {
         $input = json_decode(file_get_contents('php://input'));
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
-        }
-        $usuario = $input->usuario;
-        $pass = $input->pass;
-        $usuarios = $usuarioRepo->login($usuario, $pass);        
+        }        
+        $usuarios = $usuarioRepo->login($input);        
+        $response->getBody()->write($usuarios);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+    $app->post('/usuario/registrar', function (Request $request, Response $response) use($app) {               
+        $usuarioRepo = new UsuarioRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $usuarios = $usuarioRepo->registrarUsuario($input);        
         $response->getBody()->write($usuarios);        
         return $response->withHeader('Content-Type', 'application/json');;
     });
