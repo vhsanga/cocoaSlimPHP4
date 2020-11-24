@@ -10,7 +10,11 @@ use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 define('ROOT_PATH', dirname(__DIR__) );
 
 
-require  ROOT_PATH.'/src/Application/Repositorio/UsuarioRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/UsuarioRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/CatalogoRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/ConceptoRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/GastoRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/IngresoEgresoRepositorio.php';
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -27,6 +31,22 @@ return function (App $app) {
         $group->get('', ListUsersAction::class);
         $group->get('/{id}', ViewUserAction::class);
     });
+
+    /**
+     * catalogo y detallecatalogo  *************************************************************
+     */
+
+    $app->get('/catalogos', function (Request $request, Response $response) use($app) {               
+        $catalogoRepo = new CatalogoRepositorio;
+        $catalogos = $catalogoRepo->findAll();        
+        $response->getBody()->write($catalogos);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+    /**
+     * usuario  ********************************************************************************
+     */
 
     $app->get('/usuarios', function (Request $request, Response $response) use($app) {               
         $usuarioRepo = new UsuarioRepositorio;
@@ -58,6 +78,96 @@ return function (App $app) {
         $usuarios = $usuarioRepo->registrarUsuario($input);        
         $response->getBody()->write($usuarios);        
         return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+    $app->post('/usuario/cambiarcontrasenia', function (Request $request, Response $response) use($app) {               
+        $usuarioRepo = new UsuarioRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $usuarios = $usuarioRepo->cambiarContrasenia($input);        
+        $response->getBody()->write($usuarios);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+
+    /**
+     * concepto  *******************************************************************************
+     */
+
+    $app->post('/concepto/registrar', function (Request $request, Response $response) use($app) {               
+        $conceptoRepo = new ConceptoRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $data = $conceptoRepo->registrarConcepto($input);        
+        $response->getBody()->write($data);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+    $app->get('/conceptos/{idUsuario}', function (Request $request, Response $response) use($app) {               
+        $conceptoRepo = new ConceptoRepositorio;
+        $idUsuario = $request->getAttribute('idUsuario');
+        $data = $conceptoRepo->findByUsuario( $idUsuario);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+
+    /**
+     * gasto  *******************************************************************************
+     */
+
+    $app->post('/gasto/registrar', function (Request $request, Response $response) use($app) {               
+        $gastoRepo = new GastoRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $data = $gastoRepo->registrarGasto($input);        
+        $response->getBody()->write($data);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+    $app->get('/gastos/{idUsuario}', function (Request $request, Response $response) use($app) {               
+        $gastoRepo = new GastoRepositorio;
+        $idUsuario = $request->getAttribute('idUsuario');
+        $data = $gastoRepo->findByUsuario( $idUsuario);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+
+    /**
+     * gasto  *******************************************************************************
+     */
+
+    $app->post('/ingresoegreso/registrar', function (Request $request, Response $response) use($app) {               
+        $repo = new IngresoEgresoRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $data = $repo->registrarGasto($input);        
+        $response->getBody()->write($data);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+    $app->get('/ingresoegreso/{idUsuario}', function (Request $request, Response $response) use($app) {               
+        $repo = new IngresoEgresoRepositorio;
+        $idUsuario = $request->getAttribute('idUsuario');
+        $data = $repo->findByUsuario( $idUsuario);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
     });
 
 
