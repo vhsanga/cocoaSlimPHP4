@@ -153,19 +153,19 @@ VALUES('RUC', 'Ruc', 'TIP_ID');
 
 
 INSERT INTO cocoa.usuario
-(id, usuario, contrasenia, estadousuario)
-VALUES(1, 'user', '123', 'ACT');
+(id, usuario, contrasenia, estadousuario, fregistro)
+VALUES(1, 'user', '123', 'ACT', now());
 INSERT INTO cocoa.usuario
-(id, usuario, contrasenia, estadousuario)
-VALUES(2, '001', '123', 'ACT');
+(id, usuario, contrasenia, estadousuario, fregistro)
+VALUES(2, '001', '123', 'ACT', now());
 
 
 INSERT INTO cocoa.persona
-(id, identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion)
-VALUES(1, '0603765059', 'Jose', ' de la cuadra', '1991-12-06', 'Av de la prtensa', '032646154', 'jose@gmail.com', 'CED');
+(id, identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion, fregistro)
+VALUES(1, '0603765059', 'Jose', ' de la cuadra', '1991-12-06', 'Av de la prtensa', '032646154', 'jose@gmail.com', 'CED',  now());
 INSERT INTO cocoa.persona
-(id, identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion)
-VALUES(2, '1715452541', 'Miguel ', 'rosales', '1991-12-06', 'Av los shirys', '0976565412', 'miguelito@gmail.co', 'CED');
+(id, identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion, fregistro)
+VALUES(2, '1715452541', 'Miguel ', 'rosales', '1991-12-06', 'Av los shirys', '0976565412', 'miguelito@gmail.co', 'CED',  now());
 
 
 INSERT INTO cocoa.usuariopersona
@@ -177,14 +177,16 @@ VALUES(2, 2);
 
 
 INSERT INTO cocoa.concepto
-(id, codigo, descripcion, observacion, usuario)
-VALUES(3, 'Sueldo', 'Sueldo mensual', 'mensual', 1);
+(id, codigo, descripcion, observacion, usuario, fregistro)
+VALUES(3, 'Sueldo', 'Sueldo mensual', 'mensual', 1,  now());
 INSERT INTO cocoa.concepto
-(id, codigo, descripcion, observacion, usuario)
-VALUES(4, 'Ventas', 'ingreso de ventas', '', 1);
+(id, codigo, descripcion, observacion, usuario, fregistro)
+VALUES(4, 'Ventas', 'ingreso de ventas', '', 1,  now());
 INSERT INTO cocoa.concepto
-(id, codigo, descripcion, observacion, usuario)
-VALUES(5, 'Compras', 'egreso por compras', '', 1);
+(id, codigo, descripcion, observacion, usuario, fregistro)
+VALUES(5, 'Compras', 'egreso por compras', '', 1,  now());
 INSERT INTO cocoa.concepto
-(id, codigo, descripcion, observacion, usuario)
-VALUES(6, 'Arriendo', 'Pago mensual de arriendo', '', 1);
+(id, codigo, descripcion, observacion, usuario, fregistro)
+VALUES(6, 'Arriendo', 'Pago mensual de arriendo', '', 1,  now());
+
+
