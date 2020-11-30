@@ -5,8 +5,9 @@ include_once  ROOT_PATH.'/app/Conexion.php';
 */
 class IngresoEgresoRepositorio 
 {
-    protected $atributos = ['id','usuario', 'tipooperacion', 'valor', 'fecha', 'concepto' ];
+    protected $atributos = ['id','usuario', 'tipooperacion', 'signo', 'valor', 'fecha', 'concepto' ];
     protected $tabla="ingresoegreso";
+    protected $tablaConcepto="concepto";
 
     private function leerResultado($result, $arrAtrib){  
         $usuarios = array();       
@@ -25,12 +26,9 @@ class IngresoEgresoRepositorio
         $response = array();
         $statusCode=500;
         $mensaje='';	
-        try {
-            $conn=OpenCon();
-            $sql ="select * from ".$this->tabla.' where usuario=? ';
-            
+        try {            
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select * from '.$this->tabla.' where usuario=? ');
+            $stmt = $conn->prepare('select ie.id, ie.usuario, ie.tipooperacion, case when ie.tipooperacion =\'ING\' then \'+\'  else  \'-\' end as signo,    ie.valor, ie.fecha, c.codigo as concepto from '.$this->tabla.' ie inner join '.$this->tablaConcepto.' c where ie.usuario=? ');
             $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
@@ -44,8 +42,7 @@ class IngresoEgresoRepositorio
                 $response["message"]["description"] = $conn->error; 
             }                             
             $stmt->close();
-            $conn->close();
-            
+            $conn->close();            
         } catch (Exception $e) {
             $response["message"]["type"] = "DataBase"; 
             $response["message"]["description"] = $e->getMessage(); 
