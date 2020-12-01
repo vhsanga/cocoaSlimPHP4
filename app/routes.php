@@ -146,7 +146,7 @@ return function (App $app) {
 
 
     /**
-     * gasto  *******************************************************************************
+     * ingresoegreso  *************************************************************************
      */
 
     $app->post('/ingresoegreso/registrar', function (Request $request, Response $response) use($app) {               
@@ -161,10 +161,21 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');;
     });
 
-    $app->get('/ingresoegreso/{idUsuario}', function (Request $request, Response $response) use($app) {               
+    $app->get('/ingresoegreso/resumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
         $repo = new IngresoEgresoRepositorio;
         $idUsuario = $request->getAttribute('idUsuario');
-        $data = $repo->findByUsuario( $idUsuario);        
+        $data = $repo->findByUsuarioResumen( $idUsuario);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+    $app->get('/ingresoegreso/{idUsuario}/{fInicio}/{fFin}', function (Request $request, Response $response) use($app) {               
+        $repo = new IngresoEgresoRepositorio;
+        $idUsuario = $request->getAttribute('idUsuario');
+        $fInicio = $request->getAttribute('fInicio');
+        $fFin = $request->getAttribute('fFin');
+        $data = $repo->findByUsuarioAndFecha( $idUsuario, $fInicio, $fFin);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');
