@@ -65,7 +65,21 @@ class IngresoEgresoRepositorio
         $mensaje='';	
         try {            
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select year(fecha) as anio, month(fecha) as mes, count(id) as registros, sum(valor) as valor from ingresoegreso where usuario=? GROUP BY YEAR(fecha),month(fecha)            ');
+            $stmt = $conn->prepare('select year(fecha) as anio,'. 
+            ' case when  month(fecha) =1 then \'Enero\'  '.
+            '  when  month(fecha) =2 then \'Febrero\'  '.
+            '  when  month(fecha) =3 then \'Marzo\'  '.
+            '  when  month(fecha) =4 then \'Abril\'  '.
+            '  when  month(fecha) =5 then \'Mayo\'  '.
+            '  when  month(fecha) =6 then \'Junio\'  '.
+            '  when  month(fecha) =7 then \'Julio\'  '.
+            '  when  month(fecha) =8 then \'Agosto\'  '.
+            '  when  month(fecha) =9 then \'Septiembre\'  '.
+            '  when  month(fecha) =10 then \'Octubre\'  '.
+            '  when  month(fecha) =11 then \'Noviembre\'  '.
+            '  when  month(fecha) =12 then \'Diciembre\'  '.
+            '  end as   mes, month(fecha) as _mes,'.
+            ' count(id) as registros, sum(valor) as valor from ingresoegreso where usuario=? GROUP BY 1,2,3  ORDER by _mes asc');
             $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
