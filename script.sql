@@ -55,19 +55,6 @@ CREATE TABLE `concepto` (
 
 
 
-CREATE TABLE `gasto` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `usuario` int(11) NOT NULL,
-  `concepto` int(11) NOT NULL,
-  `valor` decimal(15,2) NOT NULL,
-  `fecha` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `gasto_concepto_fk` (`concepto`),
-  KEY `gasto_usuario_fk` (`usuario`),
-  CONSTRAINT `gasto_concepto_fk` FOREIGN KEY (`concepto`) REFERENCES `concepto` (`id`),
-  CONSTRAINT `gasto_usuario_fk` FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
-
 CREATE TABLE `ingresoegreso` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `usuario` int(11) NOT NULL,
@@ -137,16 +124,19 @@ INSERT INTO cocoa.detallecatalogo
 VALUES('ACT', 'Usuario Activo', 'EST_USU');
 INSERT INTO cocoa.detallecatalogo
 (codigo, descripcion, catalogo)
-VALUES('CED', 'Cédula', 'TIP_ID');
+VALUES('DESACT', 'Usuario Desactivado', 'EST_USU');
 INSERT INTO cocoa.detallecatalogo
 (codigo, descripcion, catalogo)
-VALUES('DESACT', 'Usuario Desactivado', 'EST_USU');
+VALUES('ING', 'Ingreso', 'TIP_OPE');
 INSERT INTO cocoa.detallecatalogo
 (codigo, descripcion, catalogo)
 VALUES('EGR', 'Egreso', 'TIP_OPE');
 INSERT INTO cocoa.detallecatalogo
 (codigo, descripcion, catalogo)
-VALUES('ING', 'Ingreso', 'TIP_OPE');
+VALUES('GASTO', 'Gastos', 'TIP_OPE');
+INSERT INTO cocoa.detallecatalogo
+(codigo, descripcion, catalogo)
+VALUES('CED', 'Cédula', 'TIP_ID');
 INSERT INTO cocoa.detallecatalogo
 (codigo, descripcion, catalogo)
 VALUES('RUC', 'Ruc', 'TIP_ID');

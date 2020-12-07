@@ -13,7 +13,6 @@ define('ROOT_PATH', dirname(__DIR__) );
 require_once  ROOT_PATH.'/src/Application/Repositorio/UsuarioRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/CatalogoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/ConceptoRepositorio.php';
-require_once  ROOT_PATH.'/src/Application/Repositorio/GastoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/IngresoEgresoRepositorio.php';
 
 return function (App $app) {
@@ -120,32 +119,6 @@ return function (App $app) {
 
 
     /**
-     * gasto  *******************************************************************************
-     */
-
-    $app->post('/gasto/registrar', function (Request $request, Response $response) use($app) {               
-        $gastoRepo = new GastoRepositorio;
-        $params = (array)$request->getParsedBody();    
-        $input = json_decode(file_get_contents('php://input'));
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
-        }        
-        $data = $gastoRepo->registrarGasto($input);        
-        $response->getBody()->write($data);        
-        return $response->withHeader('Content-Type', 'application/json');;
-    });
-
-    $app->get('/gastos/{idUsuario}', function (Request $request, Response $response) use($app) {               
-        $gastoRepo = new GastoRepositorio;
-        $idUsuario = $request->getAttribute('idUsuario');
-        $data = $gastoRepo->findByUsuario( $idUsuario);        
-        $response->getBody()->write($data);        
-        return $response
-                ->withHeader('Content-Type', 'application/json');
-    });
-
-
-    /**
      * ingresoegreso  *************************************************************************
      */
 
@@ -156,7 +129,7 @@ return function (App $app) {
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
         }        
-        $data = $repo->registrarGasto($input);        
+        $data = $repo->registrar($input);        
         $response->getBody()->write($data);        
         return $response->withHeader('Content-Type', 'application/json');;
     });
@@ -181,6 +154,16 @@ return function (App $app) {
                 ->withHeader('Content-Type', 'application/json');
     });
 
+    $app->get('/ingresoegreso/conceptoresumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
+        $repo = new IngresoEgresoRepositorio;
+        $idUsuario = $request->getAttribute('idUsuario');
+        $fInicio = $request->getAttribute('fInicio');
+        $fFin = $request->getAttribute('fFin');
+        $data = $repo->findResumenConceptoByUsuario( $idUsuario, $fInicio, $fFin);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
 
 
 };
