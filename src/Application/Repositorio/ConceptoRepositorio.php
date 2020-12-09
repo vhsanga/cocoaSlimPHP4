@@ -5,7 +5,7 @@ include_once  ROOT_PATH.'/app/Conexion.php';
 */
 class ConceptoRepositorio 
 {
-    protected $atributos = ['id','codigo', 'descripcion', 'observacion', 'usuario', 'fregistro' ];
+    protected $atributos = ['id','codigo', 'descripcion', 'observacion', 'usuario', 'fregistro', 'compania' ];
     protected $tabla="concepto";
 
     private function leerResultado($result, $arrAtrib){  
@@ -20,7 +20,7 @@ class ConceptoRepositorio
         return $usuarios;
     }
 
-    function findByUsuario($idUsuario){
+    function findByCompania($idCompania){
         $usuarios = array();               
         $response = array();
         $statusCode=500;
@@ -30,8 +30,8 @@ class ConceptoRepositorio
             $sql ="select * from ".$this->tabla.' where usuario=? ';
             
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select * from '.$this->tabla.' where usuario=? ');
-            $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('select * from '.$this->tabla.' where compania=? ');
+            $stmt->bind_param('i', $idCompania); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
             if ( $result) {
@@ -60,6 +60,7 @@ class ConceptoRepositorio
         $descripcion = $input->descripcion;
         $observacion = $input->observacion;
         $usuario = $input->usuario;
+        $compania = $input->compania;
        
         $data = array();               
         $response = array();
@@ -67,8 +68,8 @@ class ConceptoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (codigo, descripcion, observacion, usuario, fregistro) values (?,?,?,?,now())  ');
-            $stmt->bind_param('sssi', $codigo, $descripcion, $observacion, $usuario); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (codigo, descripcion, observacion, usuario, fregistro, compania) values (?,?,?,?,now(),?)  ');
+            $stmt->bind_param('sssii', $codigo, $descripcion, $observacion, $usuario, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $idConcepto = $conn->insert_id;
             if ($status === false) {    

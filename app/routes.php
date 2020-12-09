@@ -111,7 +111,7 @@ return function (App $app) {
     $app->get('/conceptos/{idUsuario}', function (Request $request, Response $response) use($app) {               
         $conceptoRepo = new ConceptoRepositorio;
         $idUsuario = $request->getAttribute('idUsuario');
-        $data = $conceptoRepo->findByUsuario( $idUsuario);        
+        $data = $conceptoRepo->findByCompania( $idUsuario);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');

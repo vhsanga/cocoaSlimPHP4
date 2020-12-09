@@ -150,6 +150,7 @@ class IngresoEgresoRepositorio
         $concepto = $input->concepto;
         $valor = $input->valor;
         $tipooperacion = $input->tipooperacion;
+        $compania = $input->compania;
        
         $data = array();               
         $response = array();
@@ -157,8 +158,8 @@ class IngresoEgresoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, concepto, valor,  fecha) values (?,?,?,?,now())  ');
-            $stmt->bind_param('isid', $usuario, $tipooperacion, $concepto, $valor); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, concepto, valor,  fecha, compania) values (?,?,?,?,now(),?)  ');
+            $stmt->bind_param('isidi', $usuario, $tipooperacion, $concepto, $valor, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $id = $conn->insert_id;
             if ($status === false) {    

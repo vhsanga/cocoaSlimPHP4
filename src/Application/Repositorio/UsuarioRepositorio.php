@@ -6,8 +6,8 @@ include_once  ROOT_PATH.'/app/Conexion.php';
 class UsuarioRepositorio 
 {
     
-    protected $atributos = ['id','usuario', 'contrasenia','estadousuario' ];
-    protected $atributosLogin = ['id','usuario', 'identificacion','nombres', 'apellidos' ];
+    protected $atributos = ['id','usuario', 'contrasenia','estadousuario','compania' ];
+    protected $atributosLogin = ['id','usuario', 'identificacion','nombres', 'apellidos', 'compania' ];
     protected $tabla="usuario";
     protected $tablaUsarioPersona="usuariopersona";
     protected $tablaPersona="persona";
@@ -107,7 +107,7 @@ class UsuarioRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select u.id, u.usuario, up.persona, p.identificacion, p.nombres, p.apellidos  from '.$this->tabla.' u  left join '.$this->tablaUsarioPersona.' up on up.usuario=u.id  left join '.$this->tablaPersona.' p on up.persona=p.id where u.usuario= ? and u.contrasenia = ?  and u.estadousuario="ACT"  ');
+            $stmt = $conn->prepare('select u.id, u.usuario, up.persona, p.identificacion, p.nombres, p.apellidos, u.compania  from '.$this->tabla.' u  left join '.$this->tablaUsarioPersona.' up on up.usuario=u.id  left join '.$this->tablaPersona.' p on up.persona=p.id where u.usuario= ? and u.contrasenia = ?  and u.estadousuario="ACT"  ');
             $stmt->bind_param('ss', $usuario, $pass); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
@@ -141,6 +141,7 @@ class UsuarioRepositorio
     function registrarUsuario($input){
         $usuario = $input->usuario;
         $pass = $input->pass;
+        $compania = $input->compania;
         
         $identificacion = $input->identificacion;
         $nombres = $input->nombres;
@@ -156,8 +157,8 @@ class UsuarioRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, contrasenia, estadousuario, fregistro) values (?,?,?,now())  ');
-            $stmt->bind_param('sss', $usuario, $pass, $this->ESTADO_ACTVO); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, contrasenia, estadousuario, fregistro, compania) values (?,?,?,now(),?)  ');
+            $stmt->bind_param('sssi', $usuario, $pass, $this->ESTADO_ACTVO,$compania); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $idUsuario = $conn->insert_id;
 
