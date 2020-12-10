@@ -108,10 +108,10 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');;
     });
 
-    $app->get('/conceptos/{idUsuario}', function (Request $request, Response $response) use($app) {               
+    $app->get('/conceptos/{idCompania}', function (Request $request, Response $response) use($app) {               
         $conceptoRepo = new ConceptoRepositorio;
-        $idUsuario = $request->getAttribute('idUsuario');
-        $data = $conceptoRepo->findByCompania( $idUsuario);        
+        $idCompania = $request->getAttribute('idCompania');
+        $data = $conceptoRepo->findByCompania( $idCompania);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');
