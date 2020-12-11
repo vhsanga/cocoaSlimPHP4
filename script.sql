@@ -1,4 +1,4 @@
-DROP TABLE cocoa.usuariopersona;
+ DROP TABLE cocoa.usuariopersona;
 DROP TABLE cocoa.persona;
 DROP TABLE cocoa.ingresoegreso;
 DROP TABLE cocoa.concepto;

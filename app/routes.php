@@ -122,14 +122,26 @@ return function (App $app) {
      * ingresoegreso  *************************************************************************
      */
 
-    $app->post('/ingresoegreso/registrar', function (Request $request, Response $response) use($app) {               
+    $app->post('/ingresoegreso/registraringreso', function (Request $request, Response $response) use($app) {               
         $repo = new IngresoEgresoRepositorio;
         $params = (array)$request->getParsedBody();    
         $input = json_decode(file_get_contents('php://input'));
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
         }        
-        $data = $repo->registrar($input);        
+        $data = $repo->registrarIngreso($input);        
+        $response->getBody()->write($data);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+
+    $app->post('/ingresoegreso/registraregreso', function (Request $request, Response $response) use($app) {               
+        $repo = new IngresoEgresoRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $data = $repo->registrarEgreso($input);        
         $response->getBody()->write($data);        
         return $response->withHeader('Content-Type', 'application/json');;
     });

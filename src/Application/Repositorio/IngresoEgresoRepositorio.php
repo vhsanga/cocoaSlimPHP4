@@ -145,7 +145,7 @@ class IngresoEgresoRepositorio
         return json_encode($response);
     }
 
-    function registrar($input){  
+    function registrarIngreso($input){  
         $usuario = $input->usuario;      
         $concepto = $input->concepto;
         $valor = $input->valor;
@@ -166,10 +166,78 @@ class IngresoEgresoRepositorio
                 $response["message"]["type"] = "DataBase" ;
                 $response["message"]["description"] = $stmt->error;
             }else{
-                $statusCode=200; 
-                $response["message"]["type"] = "OK"; 
-                $response["message"]["description"] = "Valor ingresado correctamente"; 
-                $data = array('id'=>$id ) ;
+
+                $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
+                $stmt->bind_param('di', $valor,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();        
+                if ($status === false) {    
+                    $response["message"]["type"] = "DataBase" ;
+                    $response["message"]["description"] = $stmt->error;
+                }else{
+                    $statusCode=200; 
+                    $response["message"]["type"] = "OK"; 
+                    $response["message"]["description"] = "Valor ingresado correctamente"; 
+                    $data = array('id'=>$id ) ;
+                }    
+                
+            }                                                                                                                    
+            $stmt->close();
+            $conn->close();                                           
+        } catch (Exception $e) {
+            $response["message"]["type"] = "DataBase"; 
+            $response["message"]["description"] = $e->getMessage(); 
+        }
+        $response["statusCode"] = $statusCode;	   
+	    $response["data"] = $data;
+        return json_encode($response);
+    }
+
+
+    function registrarEgreso($input){  
+        $usuario = $input->usuario;      
+        $concepto = $input->concepto;
+        $valor = $input->valor;
+        $tipooperacion = $input->tipooperacion;
+        $compania = $input->compania;
+        $conceptopadre = $input->conceptopadre;
+
+        $data = array();               
+        $response = array();
+        $statusCode=500;
+        $mensaje='';	
+        try {
+            $conn=OpenCon();            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, concepto, valor,  fecha, compania, conceptopadre) values (?,?,?,?,now(),?,?)  ');
+            $stmt->bind_param('isidii', $usuario, $tipooperacion, $concepto, $valor, $compania, $conceptopadre); // 's' specifies the variable type => 'string' a las dos variables            
+            $status = $stmt->execute();  
+            $id = $conn->insert_id;
+            if ($status === false) {    
+                $response["message"]["type"] = "DataBase" ;
+                $response["message"]["description"] = $stmt->error;
+            }else{
+
+                $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
+                $stmt->bind_param('di', $valor,  $conceptopadre); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();        
+                if ($status === false) {    
+                    $response["message"]["type"] = "DataBase" ;
+                    $response["message"]["description"] = $stmt->error;
+                }else{
+                    $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
+                    $valor = $valor*(-1);
+                    $stmt->bind_param('di', $valor,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            
+                    $status = $stmt->execute();        
+                    if ($status === false) {    
+                        $response["message"]["type"] = "DataBase" ;
+                        $response["message"]["description"] = $stmt->error;
+                    }else{
+                        $statusCode=200; 
+                        $response["message"]["type"] = "OK"; 
+                        $response["message"]["description"] = "Valor ingresado correctamente"; 
+                        $data = array('id'=>$id ) ;
+                    }
+                }    
+                
             }                                                                                                                    
             $stmt->close();
             $conn->close();                                           

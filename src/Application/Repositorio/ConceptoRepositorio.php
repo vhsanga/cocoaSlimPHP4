@@ -5,8 +5,10 @@ include_once  ROOT_PATH.'/app/Conexion.php';
 */
 class ConceptoRepositorio 
 {
-    protected $atributos = ['id','codigo', 'descripcion', 'observacion', 'usuario', 'fregistro', 'compania' ];
+    protected $atributos = ['id','codigo', 'descripcion', 'observacion', 'usuario', 'fregistro', 'compania', 'saldo', 'cuenta' ];
     protected $tabla="concepto";
+    protected $tablaCuenta="cuenta";
+    
 
     private function leerResultado($result, $arrAtrib){  
         $usuarios = array();       
@@ -30,7 +32,7 @@ class ConceptoRepositorio
             $sql ="select * from ".$this->tabla.' where usuario=? ';
             
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select * from '.$this->tabla.' where compania=? ');
+            $stmt = $conn->prepare('select c.id, c.codigo, c.descripcion, c.observacion, c.usuario, c.fregistro,  c.compania, c.saldo, cu.codigo cuenta from '.$this->tabla.' c inner join    '.$this->tablaCuenta.' cu on c.cuenta=cu.id  where c.compania=? ');
             $stmt->bind_param('i', $idCompania); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
