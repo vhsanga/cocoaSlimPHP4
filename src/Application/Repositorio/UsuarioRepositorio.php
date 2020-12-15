@@ -7,8 +7,11 @@ class UsuarioRepositorio
 {
     
     protected $atributos = ['id','usuario', 'contrasenia','estadousuario','compania' ];
+    protected $atributosUP = ['id','usuario', 'estadousuario', 'fregistro', 'idpersona', 'identificacion', 'nombres', 'apellidos', 'fnacimiento', 'direccion', 'telefono', 'correo'  ];
     protected $atributosLogin = ['id','usuario', 'identificacion','nombres', 'apellidos', 'compania' ];
     protected $tabla="usuario";
+    protected $tablaUP="usuariopersona";
+    protected $tablaP="persona";
     protected $tablaUsarioPersona="usuariopersona";
     protected $tablaPersona="persona";
     protected $ESTADO_ACTVO="ACT";
@@ -98,6 +101,40 @@ class UsuarioRepositorio
     }
 
 
+
+    function findAllByCompania($compania){
+        $usuarios = array();               
+        $response = array();
+        $statusCode=500;
+        $mensaje='';	
+        try {
+            $conn=OpenCon();
+
+            $stmt = $conn->prepare('select u.id,  u.usuario, u.estadousuario, u.fregistro, p.id idpersona, p.identificacion, p.nombres, p.apellidos, p.fnacimiento, p.direccion, p.telefono, p.correo '.
+                                   '  from '.$this->tabla.' u left join '.$this->tablaUP.' up on u.id=up.usuario left join '.$this->tablaP.' p on up.persona=p.id  where p.compania=? ');
+            $stmt->bind_param('i', $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ( $result) {
+                $usuarios = $this->leerResultado($result,$this->atributosUP ); 
+                $statusCode=200; 
+                $response["message"]["type"] = "OK"; 
+                $response["message"]["description"] = "Consulta Correcta"; 
+            }else {
+                $statusCode=200; 
+                $response["message"]["type"] = "DataBase"; 
+                $response["message"]["description"] = $conn->error; 
+            }                             
+            CloseCon($conn);    
+        } catch (Exception $e) {
+            $response["message"]["type"] = "DataBase"; 
+            $response["message"]["description"] = $e->getMessage(); 
+        }
+        $response["statusCode"] = $statusCode;	   
+	    $response["data"] = $usuarios;
+        return json_encode($response);
+    }
+
     function login($input){
         $usuario = $input->usuario;
         $pass = $input->pass;
@@ -140,7 +177,7 @@ class UsuarioRepositorio
 
     function registrarUsuario($input){
         $usuario = $input->usuario;
-        $pass = $input->pass;
+        $pass = $input->contrasenia;
         $compania = $input->compania;
         
         $identificacion = $input->identificacion;
@@ -162,8 +199,8 @@ class UsuarioRepositorio
             $stmt->execute();
             $idUsuario = $conn->insert_id;
 
-            $stmt = $conn->prepare('INSERT INTO '.$this->tablaPersona.' (identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion, fregistro) values (?,?,?,?,?,?,?,?,now())  ');
-            $stmt->bind_param('ssssssss', $identificacion, $nombres, $apellidos, $fnacimiento, $direccion, $telefono, $correo, $tipoidentificacion); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tablaPersona.' (identificacion, nombres, apellidos, fnacimiento, direccion, telefono, correo, tipoidentificacion, fregistro, compania) values (?,?,?,?,?,?,?,?,now(),?)  ');
+            $stmt->bind_param('ssssssssi', $identificacion, $nombres, $apellidos, $fnacimiento, $direccion, $telefono, $correo, $tipoidentificacion,$compania); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $idPersona = $conn->insert_id;
 
@@ -192,24 +229,45 @@ class UsuarioRepositorio
     function cambiarContrasenia($input){
         $usuario = $input->usuario;
         $pass = $input->pass;
+        $passAnterior = $input->passa;
                
         $data = array();               
         $response = array();
         $statusCode=500;
         $mensaje='';	
         try {
-            $conn=OpenCon();            
-            $stmt = $conn->prepare('UPDATE '.$this->tabla.' SET contrasenia = ? where id= ?  ');
-            $stmt->bind_param('si', $pass,  $usuario); // 's' specifies the variable type => 'string' a las dos variables            
-            $status = $stmt->execute();        
-            if ($status === false) {    
-                $response["message"]["type"] = "DataBase" ;
-                $response["message"]["description"] = $stmt->error;
-            }else{
-                $statusCode=200; 
-                $response["message"]["type"] = "OK"; 
-                $response["message"]["description"] = "Contraseña cambiada correctamente"; 
-            }                                                                                                                    
+            $conn=OpenCon(); 
+            
+
+            $stmt = $conn->prepare('select u.id, u.usuario  from '.$this->tabla.' u  where u.id= ? and u.contrasenia = ?  ');
+            $stmt->bind_param('is', $usuario, $passAnterior); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ( $result) {
+                if ($result->num_rows > 0) {
+
+                    $stmt = $conn->prepare('UPDATE '.$this->tabla.' SET contrasenia = ? where id= ?  ');
+                    $stmt->bind_param('si', $pass,  $usuario); // 's' specifies the variable type => 'string' a las dos variables            
+                    $status = $stmt->execute();        
+                    if ($status === false) {    
+                        $response["message"]["type"] = "DataBase" ;
+                        $response["message"]["description"] = $stmt->error;
+                    }else{
+                        $statusCode=200; 
+                        $response["message"]["type"] = "OK"; 
+                        $response["message"]["description"] = "Contraseña cambiada correctamente"; 
+                    } 
+                    
+                }else{
+                    $statusCode=403; 
+                    $response["message"]["type"] = "ERR"; 
+                    $response["message"]["description"] = "La contraseña Anterior es incorrecta";
+                }                                
+            }else {
+                $response["message"]["type"] = "DataBase"; 
+                $response["message"]["description"] = $conn->error; 
+            }              
+                                                                                                                               
             $stmt->close();
             $conn->close();    
         } catch (Exception $e) {

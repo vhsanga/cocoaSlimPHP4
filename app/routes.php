@@ -55,6 +55,15 @@ return function (App $app) {
                 ->withHeader('Content-Type', 'application/json');
     });
 
+    $app->get('/usuarioscompania/{idCompania}', function (Request $request, Response $response) use($app) {               
+        $usuarioRepo = new UsuarioRepositorio;
+        $idCompania = $request->getAttribute('idCompania');
+        $usuarios = $usuarioRepo->findAllByCompania($idCompania);        
+        $response->getBody()->write($usuarios);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
     $app->post('/login', function (Request $request, Response $response) use($app) {               
         $usuarioRepo = new UsuarioRepositorio;
         $params = (array)$request->getParsedBody();    
