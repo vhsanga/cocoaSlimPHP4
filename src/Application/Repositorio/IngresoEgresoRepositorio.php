@@ -10,6 +10,7 @@ class IngresoEgresoRepositorio
     protected $atributosConceptos = ['id','concepto', 'registros', 'valor' ];
     protected $tabla="ingresoegreso";
     protected $tablaConcepto="concepto";
+    protected $tablaCta="cuenta";
 
     private function leerResultado($result, $arrAtrib){  
         $usuarios = array();       
@@ -151,6 +152,8 @@ class IngresoEgresoRepositorio
         $valor = $input->valor;
         $tipooperacion = $input->tipooperacion;
         $compania = $input->compania;
+        $idcuenta = $input->idcuenta;
+
        
         $data = array();               
         $response = array();
@@ -174,10 +177,18 @@ class IngresoEgresoRepositorio
                     $response["message"]["type"] = "DataBase" ;
                     $response["message"]["description"] = $stmt->error;
                 }else{
-                    $statusCode=200; 
-                    $response["message"]["type"] = "OK"; 
-                    $response["message"]["description"] = "Valor ingresado correctamente"; 
-                    $data = array('id'=>$id ) ;
+                    $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
+                    $stmt->bind_param('di', $valor,  $idcuenta); // 's' specifies the variable type => 'string' a las dos variables            
+                    $status = $stmt->execute();        
+                    if ($status === false) {    
+                        $response["message"]["type"] = "DataBase" ;
+                        $response["message"]["description"] = $stmt->error;
+                    }else{
+                        $statusCode=200; 
+                        $response["message"]["type"] = "OK"; 
+                        $response["message"]["description"] = "Valor ingresado correctamente"; 
+                        $data = array('id'=>$id ) ;
+                    } 
                 }    
                 
             }                                                                                                                    
@@ -200,6 +211,8 @@ class IngresoEgresoRepositorio
         $tipooperacion = $input->tipooperacion;
         $compania = $input->compania;
         $conceptopadre = $input->conceptopadre;
+        $idcuenta = $input->idcuenta;
+        $idcuentapadre = $input->idcuentapadre;
 
         $data = array();               
         $response = array();
@@ -224,17 +237,34 @@ class IngresoEgresoRepositorio
                     $response["message"]["description"] = $stmt->error;
                 }else{
                     $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
-                    $valor = $valor*(-1);
-                    $stmt->bind_param('di', $valor,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            
+                    $val_=$valor*(-1);
+                    $stmt->bind_param('di', $val_,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            
                     $status = $stmt->execute();        
                     if ($status === false) {    
                         $response["message"]["type"] = "DataBase" ;
                         $response["message"]["description"] = $stmt->error;
                     }else{
-                        $statusCode=200; 
-                        $response["message"]["type"] = "OK"; 
-                        $response["message"]["description"] = "Valor ingresado correctamente"; 
-                        $data = array('id'=>$id ) ;
+                        $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
+                        $stmt->bind_param('di', $valor,  $idcuentapadre); // 's' specifies the variable type => 'string' a las dos variables            
+                        $status = $stmt->execute();        
+                        if ($status === false) {    
+                            $response["message"]["type"] = "DataBase" ;
+                            $response["message"]["description"] = $stmt->error;
+                        }else{
+                            $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
+                            $val_=$valor*(-1);
+                            $stmt->bind_param('di', $val_,  $idcuenta); // 's' specifies the variable type => 'string' a las dos variables            
+                            $status = $stmt->execute();        
+                            if ($status === false) {    
+                                $response["message"]["type"] = "DataBase" ;
+                                $response["message"]["description"] = $stmt->error;
+                            }else{
+                                $statusCode=200; 
+                                $response["message"]["type"] = "OK"; 
+                                $response["message"]["description"] = "Valor ingresado correctamente"; 
+                                $data = array('id'=>$id ) ;
+                            }
+                        } 
                     }
                 }    
                 
