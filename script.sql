@@ -261,3 +261,4 @@ INSERT INTO cocoa.concepto ( codigo, descripcion, observacion, usuario, fregistr
 VALUES( 'Arriendo', 'Pago mensual de arriendo', '', 1,  now(), 3,  1);
 
 
+select ac.id, c.descripcion, ac.debe, ac.haber  from asientocontable ac inner join concepto c on ac.concepto=c.id

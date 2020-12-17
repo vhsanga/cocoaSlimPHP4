@@ -11,7 +11,7 @@ class MovimientoRepositorio
     protected $tabla="movimiento";
     protected $tablaConcepto="concepto";
     protected $tablaCta="cuenta";
-    protected $tablaAsientoContable="cuenta";
+    protected $tablaAsientoContable="asientocontable";
 
     private function leerResultado($result, $arrAtrib){  
         $usuarios = array();       
@@ -155,7 +155,6 @@ class MovimientoRepositorio
         $tipooperacion = $input->tipooperacion;
         $compania = $input->compania;
         $cuentacredito = $input->cuentacredito;
-        $cuentadebito = $input->cuentadebito;
 
        
         $data = array();               
@@ -165,7 +164,7 @@ class MovimientoRepositorio
         try {
             $conn=OpenCon();            
             $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor,  fecha, compania) values (?,?,?,now(),?)  ');
-            $stmt->bind_param('isidi', $usuario, $tipooperacion, $valor, $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->bind_param('isdi', $usuario, $tipooperacion, $valor, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $idMovimiento = $conn->insert_id;
             if ($status === false) {    
@@ -174,11 +173,11 @@ class MovimientoRepositorio
             }else{
 
                 $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, debe) values (?,?,?)  ');
-                $stmt->bind_param('iid', $idMovimiento,  $conceptocredito); // 's' specifies the variable type => 'string' a las dos variables            
+                $stmt->bind_param('iid', $idMovimiento,  $conceptocredito, $valor); // 's' specifies the variable type => 'string' a las dos variables            
                 $status = $stmt->execute();       
                 
                 $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, haber) values (?,?,?)  ');
-                $stmt->bind_param('iid', $idMovimiento,  $conceptodebito); // 's' specifies the variable type => 'string' a las dos variables            
+                $stmt->bind_param('iid', $idMovimiento,  $conceptodebito, $valor); // 's' specifies the variable type => 'string' a las dos variables            
                 $status = $stmt->execute();  
 
 
@@ -190,7 +189,7 @@ class MovimientoRepositorio
                     $response["message"]["description"] = $stmt->error;
                 }else{
                     $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
-                    $stmt->bind_param('di', $valor,  $idcuenta); // 's' specifies the variable type => 'string' a las dos variables            
+                    $stmt->bind_param('di', $valor,  $cuentacredito); // 's' specifies the variable type => 'string' a las dos variables            
                     $status = $stmt->execute();        
                     if ($status === false) {    
                         $response["message"]["type"] = "DataBase" ;
@@ -199,7 +198,6 @@ class MovimientoRepositorio
                         $statusCode=200; 
                         $response["message"]["type"] = "OK"; 
                         $response["message"]["description"] = "Valor ingresado correctamente"; 
-                        $data = array('id'=>$id ) ;
                     } 
                 }    
                 
