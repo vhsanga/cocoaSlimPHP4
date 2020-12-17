@@ -3,14 +3,15 @@ include_once  ROOT_PATH.'/app/Conexion.php';
 /**
 * this class represents a usuario
 */
-class IngresoEgresoRepositorio 
+class MovimientoRepositorio 
 {
     protected $atributos = ['id','usuario', 'tipooperacion', 'signo', 'valor', 'fecha', 'concepto' ];
     protected $atributosResumen = ['anio','mes', 'registros', 'valor' ];
     protected $atributosConceptos = ['id','concepto', 'registros', 'valor' ];
-    protected $tabla="ingresoegreso";
+    protected $tabla="movimiento";
     protected $tablaConcepto="concepto";
     protected $tablaCta="cuenta";
+    protected $tablaAsientoContable="cuenta";
 
     private function leerResultado($result, $arrAtrib){  
         $usuarios = array();       
@@ -148,11 +149,13 @@ class IngresoEgresoRepositorio
 
     function registrarIngreso($input){  
         $usuario = $input->usuario;      
-        $concepto = $input->concepto;
+        $conceptocredito = $input->conceptocredito;
+        $conceptodebito = $input->conceptodebito;
         $valor = $input->valor;
         $tipooperacion = $input->tipooperacion;
         $compania = $input->compania;
-        $idcuenta = $input->idcuenta;
+        $cuentacredito = $input->cuentacredito;
+        $cuentadebito = $input->cuentadebito;
 
        
         $data = array();               
@@ -161,14 +164,23 @@ class IngresoEgresoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, concepto, valor,  fecha, compania) values (?,?,?,?,now(),?)  ');
-            $stmt->bind_param('isidi', $usuario, $tipooperacion, $concepto, $valor, $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor,  fecha, compania) values (?,?,?,now(),?)  ');
+            $stmt->bind_param('isidi', $usuario, $tipooperacion, $valor, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
-            $id = $conn->insert_id;
+            $idMovimiento = $conn->insert_id;
             if ($status === false) {    
                 $response["message"]["type"] = "DataBase" ;
                 $response["message"]["description"] = $stmt->error;
             }else{
+
+                $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, debe) values (?,?,?)  ');
+                $stmt->bind_param('iid', $idMovimiento,  $conceptocredito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();       
+                
+                $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, haber) values (?,?,?)  ');
+                $stmt->bind_param('iid', $idMovimiento,  $conceptodebito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();  
+
 
                 $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
                 $stmt->bind_param('di', $valor,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            

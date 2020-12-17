@@ -97,28 +97,34 @@ CREATE TABLE `concepto` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8
 
 
-
-CREATE TABLE `ingresoegreso` (
+CREATE TABLE `movimiento` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `usuario` int(11) NOT NULL,
   `tipooperacion` varchar(9) NOT NULL,
   `valor` decimal(15,2) NOT NULL DEFAULT '0.00',
   `fecha` datetime NOT NULL,
-  `concepto` int(11) NOT NULL,
-  `conceptopadre` int(11) DEFAULT NULL,
   `compania` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ingresoegreso_detallecatalogo_fk` (`tipooperacion`),
   KEY `ingresoegreso_usuario_fk` (`usuario`),
-  KEY `ingresoegreso_concepto_fk` (`concepto`),
-  KEY `ingresoegreso_concepto_fk_1` (`conceptopadre`),
-  CONSTRAINT `ingresoegreso_concepto_fk` FOREIGN KEY (`concepto`) REFERENCES `concepto` (`id`),
-  CONSTRAINT `ingresoegreso_concepto_fk_1` FOREIGN KEY (`conceptopadre`) REFERENCES `concepto` (`id`),
-  CONSTRAINT `ingresoegreso_detallecatalogo_fk` FOREIGN KEY (`tipooperacion`) REFERENCES `detallecatalogo` (`codigo`),
+  KEY `ingresoegreso_compania_fk` (`compania`),
   CONSTRAINT `ingresoegreso_compania_fk` FOREIGN KEY (`compania`) REFERENCES `compania` (`id`),
+  CONSTRAINT `ingresoegreso_detallecatalogo_fk` FOREIGN KEY (`tipooperacion`) REFERENCES `detallecatalogo` (`codigo`),
   CONSTRAINT `ingresoegreso_usuario_fk` FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8
 
+
+
+CREATE TABLE `asientocontable` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `movimiento` int(11) NOT NULL,
+  `concepto` int(11) NOT NULL,
+  `debe` decimal(15,2) DEFAULT NULL,
+  `haber` decimal(15,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `asientocontable_FK` (`concepto`),
+  CONSTRAINT `asientocontable_FK` FOREIGN KEY (`concepto`) REFERENCES `concepto` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 
 
 CREATE TABLE `persona` (

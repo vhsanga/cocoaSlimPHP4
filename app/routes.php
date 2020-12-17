@@ -13,7 +13,7 @@ define('ROOT_PATH', dirname(__DIR__) );
 require_once  ROOT_PATH.'/src/Application/Repositorio/UsuarioRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/CatalogoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/ConceptoRepositorio.php';
-require_once  ROOT_PATH.'/src/Application/Repositorio/IngresoEgresoRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/MovimientoRepositorio.php';
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -128,11 +128,11 @@ return function (App $app) {
 
 
     /**
-     * ingresoegreso  *************************************************************************
+     * Movimiento *************************************************************************
      */
 
-    $app->post('/ingresoegreso/registraringreso', function (Request $request, Response $response) use($app) {               
-        $repo = new IngresoEgresoRepositorio;
+    $app->post('/movimiento/registraringreso', function (Request $request, Response $response) use($app) {               
+        $repo = new MovimientoRepositorio;
         $params = (array)$request->getParsedBody();    
         $input = json_decode(file_get_contents('php://input'));
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -143,8 +143,8 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');;
     });
 
-    $app->post('/ingresoegreso/registraregreso', function (Request $request, Response $response) use($app) {               
-        $repo = new IngresoEgresoRepositorio;
+    $app->post('/movimiento/registraregreso', function (Request $request, Response $response) use($app) {               
+        $repo = new MovimientoRepositorio;
         $params = (array)$request->getParsedBody();    
         $input = json_decode(file_get_contents('php://input'));
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -155,8 +155,8 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');;
     });
 
-    $app->get('/ingresoegreso/resumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
-        $repo = new IngresoEgresoRepositorio;
+    $app->get('/movimiento/resumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
+        $repo = new MovimientoRepositorio;
         $idUsuario = $request->getAttribute('idUsuario');
         $data = $repo->findByUsuarioResumen( $idUsuario);        
         $response->getBody()->write($data);        
@@ -164,8 +164,8 @@ return function (App $app) {
                 ->withHeader('Content-Type', 'application/json');
     });
 
-    $app->get('/ingresoegreso/{idUsuario}/{fInicio}/{fFin}', function (Request $request, Response $response) use($app) {               
-        $repo = new IngresoEgresoRepositorio;
+    $app->get('/movimiento/{idUsuario}/{fInicio}/{fFin}', function (Request $request, Response $response) use($app) {               
+        $repo = new MovimientoRepositorio;
         $idUsuario = $request->getAttribute('idUsuario');
         $fInicio = $request->getAttribute('fInicio');
         $fFin = $request->getAttribute('fFin');
@@ -175,8 +175,8 @@ return function (App $app) {
                 ->withHeader('Content-Type', 'application/json');
     });
 
-    $app->get('/ingresoegreso/conceptoresumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
-        $repo = new IngresoEgresoRepositorio;
+    $app->get('/movimiento/conceptoresumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
+        $repo = new MovimientoRepositorio;
         $idUsuario = $request->getAttribute('idUsuario');
         $fInicio = $request->getAttribute('fInicio');
         $fFin = $request->getAttribute('fFin');
