@@ -1,6 +1,6 @@
  DROP TABLE cocoa.usuariopersona;
 DROP TABLE cocoa.persona;
-DROP TABLE cocoa.ingresoegreso;
+DROP TABLE cocoa.movimiento;
 DROP TABLE cocoa.concepto;
 DROP TABLE cocoa.usuario;
 DROP TABLE cocoa.cuenta;
@@ -82,10 +82,12 @@ CREATE TABLE `concepto` (
   `codigo` varchar(16) NOT NULL,
   `descripcion` varchar(64) NOT NULL,
   `observacion` varchar(128) DEFAULT NULL,
-  `usuario` int(11) NOT NULL,
+  `saldo` decimal(15,2) DEFAULT NULL,
+  `esingreso` tinyint(1) DEFAULT NULL,
   `fregistro` datetime NOT NULL,
+  `usuario` int(11) NOT NULL,
   `cuenta` int(11) DEFAULT NULL,
-  `compania` int(11) DEFAULT NULL,
+  `compania` int(11) DEFAULT NULL,  
   PRIMARY KEY (`id`),
   UNIQUE KEY `concepto_codigo_idx` (`codigo`) USING BTREE,
   KEY `concepto_usuario_fk` (`usuario`),
@@ -94,7 +96,7 @@ CREATE TABLE `concepto` (
   CONSTRAINT `concepto_compania_fk` FOREIGN KEY (`compania`) REFERENCES `compania` (`id`),
   CONSTRAINT `concepto_cuenta_fk` FOREIGN KEY (`cuenta`) REFERENCES `cuenta` (`id`),
   CONSTRAINT `concepto_usuario_fk` FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8
 
 
 CREATE TABLE `movimiento` (
@@ -102,16 +104,17 @@ CREATE TABLE `movimiento` (
   `usuario` int(11) NOT NULL,
   `tipooperacion` varchar(9) NOT NULL,
   `valor` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `detalle` varchar(128) DEFAULT NULL,
   `fecha` datetime NOT NULL,
   `compania` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `ingresoegreso_detallecatalogo_fk` (`tipooperacion`),
-  KEY `ingresoegreso_usuario_fk` (`usuario`),
-  KEY `ingresoegreso_compania_fk` (`compania`),
-  CONSTRAINT `ingresoegreso_compania_fk` FOREIGN KEY (`compania`) REFERENCES `compania` (`id`),
-  CONSTRAINT `ingresoegreso_detallecatalogo_fk` FOREIGN KEY (`tipooperacion`) REFERENCES `detallecatalogo` (`codigo`),
-  CONSTRAINT `ingresoegreso_usuario_fk` FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8
+  KEY `movimiento_detallecatalogo_fk` (`tipooperacion`),
+  KEY `movimientousuario_fk` (`usuario`),
+  KEY `movimiento_compania_fk` (`compania`),
+  CONSTRAINT `imovimiento_compania_fk` FOREIGN KEY (`compania`) REFERENCES `compania` (`id`),
+  CONSTRAINT `movimiento_detallecatalogo_fk` FOREIGN KEY (`tipooperacion`) REFERENCES `detallecatalogo` (`codigo`),
+  CONSTRAINT `movimiento_usuario_fk` FOREIGN KEY (`usuario`) REFERENCES `usuario` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8
 
 
 
@@ -251,14 +254,18 @@ VALUES(4, 'Bancos', 'Bancos', 0.00, 'Efectivo en Bancos', 'CTA_ACT', '2020-12-09
 
 
 
-INSERT INTO cocoa.concepto ( codigo, descripcion, observacion, usuario, fregistro, cuenta, compania)
-VALUES( 'Sueldo', 'Sueldo mensual', 'mensual', 1,  now(), 4, 1);
-INSERT INTO cocoa.concepto ( codigo, descripcion, observacion, usuario, fregistro, cuenta, compania)
-VALUES( 'Ventas', 'ingreso de ventas', '', 1,  now(), 1, 1);
-INSERT INTO cocoa.concepto ( codigo, descripcion, observacion, usuario, fregistro, cuenta, compania)
-VALUES( 'Compras', 'egreso por compras', '', 1,  now(), 1,  1);
-INSERT INTO cocoa.concepto ( codigo, descripcion, observacion, usuario, fregistro, cuenta, compania)
-VALUES( 'Arriendo', 'Pago mensual de arriendo', '', 1,  now(), 3,  1);
+INSERT INTO cocoa.concepto(id, codigo, descripcion, observacion, usuario, fregistro, cuenta, compania, saldo, esingreso)
+VALUES(1, 'Sueldo', 'Sueldo mensual', 'mensual', 1, '2020-12-10 00:05:30.0', 4, 1, 0.00, 0);
+INSERT INTO cocoa.concepto(id, codigo, descripcion, observacion, usuario, fregistro, cuenta, compania, saldo, esingreso)
+VALUES(2, 'Caja', 'ingreso de efectivo por ventas', 'Registro diario', 1, '2020-12-10 00:06:07.0', 1, 1, 0.00, 0);
+INSERT INTO cocoa.concepto(id, codigo, descripcion, observacion, usuario, fregistro, cuenta, compania, saldo, esingreso)
+VALUES(3, 'Compras', 'egreso por compras', 'Registro diario', 1, '2020-12-10 00:06:10.0', 1, 1, 0.00, 0);
+INSERT INTO cocoa.concepto(id, codigo, descripcion, observacion, usuario, fregistro, cuenta, compania, saldo, esingreso)
+VALUES(4, 'Arriendo', 'Pago mensual de arriendo', 'Pago mensual', 1, '2020-12-10 00:06:12.0', 3, 1, 0.00, 0);
+INSERT INTO cocoa.concepto(id, codigo, descripcion, observacion, usuario, fregistro, cuenta, compania, saldo, esingreso)
+VALUES(5, 'Contrato laboral', 'Contrato laboral ', 'Pago mensual', 1, '2020-12-10 00:06:12.0', NULL, 1, 0.00, 1);
+INSERT INTO cocoa.concepto(id, codigo, descripcion, observacion, usuario, fregistro, cuenta, compania, saldo, esingreso)
+VALUES(6, 'Tienda', 'Ventas de productos abarrotes', 'registro diario', 1, '2020-12-10 00:06:12.0', NULL, 1, 0.00, 1);
 
 
 select ac.id, c.descripcion, ac.debe, ac.haber  from asientocontable ac inner join concepto c on ac.concepto=c.id

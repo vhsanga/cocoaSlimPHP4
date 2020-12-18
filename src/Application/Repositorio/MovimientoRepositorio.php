@@ -155,6 +155,7 @@ class MovimientoRepositorio
         $tipooperacion = $input->tipooperacion;
         $compania = $input->compania;
         $cuentacredito = $input->cuentacredito;
+        $detalle = $input->detalle;
 
        
         $data = array();               
@@ -163,8 +164,8 @@ class MovimientoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor,  fecha, compania) values (?,?,?,now(),?)  ');
-            $stmt->bind_param('isdi', $usuario, $tipooperacion, $valor, $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor, detalle, fecha, compania) values (?,?,?,?,now(),?)  ');
+            $stmt->bind_param('isdsi', $usuario, $tipooperacion, $valor, $detalle, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $idMovimiento = $conn->insert_id;
             if ($status === false) {    
@@ -172,35 +173,31 @@ class MovimientoRepositorio
                 $response["message"]["description"] = $stmt->error;
             }else{
 
+                //insertar DEBE
                 $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, debe) values (?,?,?)  ');
                 $stmt->bind_param('iid', $idMovimiento,  $conceptocredito, $valor); // 's' specifies the variable type => 'string' a las dos variables            
                 $status = $stmt->execute();       
-                
+                //insertar HABER
                 $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, haber) values (?,?,?)  ');
                 $stmt->bind_param('iid', $idMovimiento,  $conceptodebito, $valor); // 's' specifies the variable type => 'string' a las dos variables            
                 $status = $stmt->execute();  
 
-
                 $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
-                $stmt->bind_param('di', $valor,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            
-                $status = $stmt->execute();        
+                $stmt->bind_param('di', $valor,  $conceptocredito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();              
+                
+                $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
+                $stmt->bind_param('di', $valor,  $cuentacredito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();     
+
                 if ($status === false) {    
                     $response["message"]["type"] = "DataBase" ;
                     $response["message"]["description"] = $stmt->error;
                 }else{
-                    $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
-                    $stmt->bind_param('di', $valor,  $cuentacredito); // 's' specifies the variable type => 'string' a las dos variables            
-                    $status = $stmt->execute();        
-                    if ($status === false) {    
-                        $response["message"]["type"] = "DataBase" ;
-                        $response["message"]["description"] = $stmt->error;
-                    }else{
-                        $statusCode=200; 
-                        $response["message"]["type"] = "OK"; 
-                        $response["message"]["description"] = "Valor ingresado correctamente"; 
-                    } 
-                }    
-                
+                    $statusCode=200; 
+                    $response["message"]["type"] = "OK"; 
+                    $response["message"]["description"] = "Valor ingresado correctamente"; 
+                }                                     
             }                                                                                                                    
             $stmt->close();
             $conn->close();                                           
@@ -216,13 +213,14 @@ class MovimientoRepositorio
 
     function registrarEgreso($input){  
         $usuario = $input->usuario;      
-        $concepto = $input->concepto;
+        $conceptocredito = $input->conceptocredito;
+        $conceptodebito = $input->conceptodebito;
         $valor = $input->valor;
         $tipooperacion = $input->tipooperacion;
         $compania = $input->compania;
-        $conceptopadre = $input->conceptopadre;
-        $idcuenta = $input->idcuenta;
-        $idcuentapadre = $input->idcuentapadre;
+        $cuentacredito = $input->cuentacredito;
+        $cuentadebito = $input->cuentadebito;
+        $detalle = $input->detalle;
 
         $data = array();               
         $response = array();
@@ -230,53 +228,51 @@ class MovimientoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, concepto, valor,  fecha, compania, conceptopadre) values (?,?,?,?,now(),?,?)  ');
-            $stmt->bind_param('isidii', $usuario, $tipooperacion, $concepto, $valor, $compania, $conceptopadre); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor, detalle, fecha, compania) values (?,?,?,?,now(),?)  ');
+            $stmt->bind_param('isdsi', $usuario, $tipooperacion, $valor, $detalle, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
-            $id = $conn->insert_id;
+            $idMovimiento = $conn->insert_id;
+
             if ($status === false) {    
                 $response["message"]["type"] = "DataBase" ;
                 $response["message"]["description"] = $stmt->error;
-            }else{
+            }else{                
+                $val_=$valor*(-1);
+                //insertar DEBE
+                $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, debe) values (?,?,?)  ');
+                $stmt->bind_param('iid', $idMovimiento,  $conceptocredito, $val_); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();       
+                //insertar HABER
+                $stmt = $conn->prepare('INSERT INTO '.$this->tablaAsientoContable.' (movimiento, concepto, haber) values (?,?,?)  ');
+                $stmt->bind_param('iid', $idMovimiento,  $conceptodebito, $val_); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute(); 
 
+                //ACtualizar los saldos en los conceptos
                 $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
-                $stmt->bind_param('di', $valor,  $conceptopadre); // 's' specifies the variable type => 'string' a las dos variables            
+                $stmt->bind_param('di', $valor,  $conceptodebito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();        
+                
+                $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
+                $stmt->bind_param('di', $val_,  $conceptocredito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();        
+                
+                //ACtualizar los saldos en las cuentas
+                $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
+                $stmt->bind_param('di', $valor,  $cuentadebito); // 's' specifies the variable type => 'string' a las dos variables            
+                $status = $stmt->execute();        
+                
+                $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
+                $stmt->bind_param('di', $val_,  $cuentacredito); // 's' specifies the variable type => 'string' a las dos variables            
                 $status = $stmt->execute();        
                 if ($status === false) {    
                     $response["message"]["type"] = "DataBase" ;
                     $response["message"]["description"] = $stmt->error;
                 }else{
-                    $stmt = $conn->prepare('UPDATE '.$this->tablaConcepto.' SET saldo = saldo + ? where id= ?  ');
-                    $val_=$valor*(-1);
-                    $stmt->bind_param('di', $val_,  $concepto); // 's' specifies the variable type => 'string' a las dos variables            
-                    $status = $stmt->execute();        
-                    if ($status === false) {    
-                        $response["message"]["type"] = "DataBase" ;
-                        $response["message"]["description"] = $stmt->error;
-                    }else{
-                        $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
-                        $stmt->bind_param('di', $valor,  $idcuentapadre); // 's' specifies the variable type => 'string' a las dos variables            
-                        $status = $stmt->execute();        
-                        if ($status === false) {    
-                            $response["message"]["type"] = "DataBase" ;
-                            $response["message"]["description"] = $stmt->error;
-                        }else{
-                            $stmt = $conn->prepare('UPDATE '.$this->tablaCta.' SET saldo = saldo + ? where id= ?  ');
-                            $val_=$valor*(-1);
-                            $stmt->bind_param('di', $val_,  $idcuenta); // 's' specifies the variable type => 'string' a las dos variables            
-                            $status = $stmt->execute();        
-                            if ($status === false) {    
-                                $response["message"]["type"] = "DataBase" ;
-                                $response["message"]["description"] = $stmt->error;
-                            }else{
-                                $statusCode=200; 
-                                $response["message"]["type"] = "OK"; 
-                                $response["message"]["description"] = "Valor ingresado correctamente"; 
-                                $data = array('id'=>$id ) ;
-                            }
-                        } 
-                    }
-                }    
+                    $statusCode=200; 
+                    $response["message"]["type"] = "OK"; 
+                    $response["message"]["description"] = "Valor ingresado correctamente"; 
+
+                }                                                    
                 
             }                                                                                                                    
             $stmt->close();
