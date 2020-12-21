@@ -5,7 +5,7 @@ include_once  ROOT_PATH.'/app/Conexion.php';
 */
 class MovimientoRepositorio 
 {
-    protected $atributos = ['id','usuario', 'tipooperacion', 'signo', 'valor', 'fecha', 'concepto' ];
+    protected $atributos = ['id','usuario', 'tipooperacion', 'signo', 'valor', 'fecha', 'detalle' ];
     protected $atributosResumen = ['anio','mes', 'registros', 'valor' ];
     protected $atributosConceptos = ['id','concepto', 'registros', 'valor' ];
     protected $tabla="movimiento";
@@ -32,7 +32,7 @@ class MovimientoRepositorio
         $mensaje='';	
         try {            
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select ie.id, ie.usuario, ie.tipooperacion, case when ie.tipooperacion =\'ING\' then \'+\' end as signo,    ie.valor, ie.fecha, c.codigo as concepto from '.$this->tabla.' ie inner join '.$this->tablaConcepto.' c  on ie.concepto=c.id   where ie.usuario=? and  ie.fecha between ? and ? ');
+            $stmt = $conn->prepare('select m.id, m.usuario, m.tipooperacion, case when m.tipooperacion =\'ING\' then \'+\' end as signo,  m.valor, m.fecha, m.detalle from '.$this->tabla.' m   where m.usuario=? and  m.fecha between ? and ? ');
             $stmt->bind_param('iss', $idUsuario,$fInicio, $fFin); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
@@ -82,7 +82,7 @@ class MovimientoRepositorio
             '  when  month(fecha) =11 then \'Noviembre\'  '.
             '  when  month(fecha) =12 then \'Diciembre\'  '.
             '  end as   mes, month(fecha) as _mes,'.
-            ' count(id) as registros, sum(valor) as valor from ingresoegreso where usuario=? GROUP BY 1,2,3  ORDER by _mes asc');
+            ' count(id) as registros, sum(valor) as valor from ' .$this->tabla.' where usuario=? GROUP BY 1,2,3  ORDER by _mes asc');
             $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
@@ -119,9 +119,9 @@ class MovimientoRepositorio
         $mensaje='';	
         try {            
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select ie.concepto as id, c.codigo  as concepto, '.
-                'count(ie.id) as registros, sum(ie.valor) as valor '.
-                'from ingresoegreso ie inner join concepto c on ie.concepto = c.id where ie.usuario=? '.
+            $stmt = $conn->prepare('select c.id as id, c.codigo  as concepto, '.
+                'count(m.id) as registros, sum(m.valor) as valor '.
+                'from movimiento m inner join concepto c on m.conceptoprincipal = c.id where m.usuario=? '.
                 'GROUP BY 1 '.
                 'ORDER by valor asc');
             $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
