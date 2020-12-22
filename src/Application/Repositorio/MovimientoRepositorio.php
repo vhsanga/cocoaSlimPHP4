@@ -164,8 +164,8 @@ class MovimientoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor, detalle, fecha, compania) values (?,?,?,?,now(),?)  ');
-            $stmt->bind_param('isdsi', $usuario, $tipooperacion, $valor, $detalle, $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor, detalle, fecha, conceptoprincipal, compania) values (?,?,?,?,now(),?,?)  ');
+            $stmt->bind_param('isdsii', $usuario, $tipooperacion, $valor, $detalle, $conceptocredito, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $idMovimiento = $conn->insert_id;
             if ($status === false) {    
@@ -228,8 +228,8 @@ class MovimientoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor, detalle, fecha, compania) values (?,?,?,?,now(),?)  ');
-            $stmt->bind_param('isdsi', $usuario, $tipooperacion, $valor, $detalle, $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (usuario, tipooperacion, valor, detalle, fecha, conceptoprincipal, compania) values (?,?,?,?,now(),?,?)  ');
+            $stmt->bind_param('isdsii', $usuario, $tipooperacion, $valor, $detalle, $conceptodebito, $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $idMovimiento = $conn->insert_id;
 
