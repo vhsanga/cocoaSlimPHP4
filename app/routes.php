@@ -14,6 +14,8 @@ require_once  ROOT_PATH.'/src/Application/Repositorio/UsuarioRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/CatalogoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/ConceptoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/MovimientoRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/CuentaRepositorio.php';
+
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
@@ -185,6 +187,20 @@ return function (App $app) {
         return $response
                 ->withHeader('Content-Type', 'application/json');
     });
+
+
+    /**
+     * Cuentas *************************************************************************
+     */
+    $app->get('/cuentas/{idCompania}', function (Request $request, Response $response) use($app) {               
+        $repo = new CuentaRepositorio;
+        $idCompania = $request->getAttribute('idCompania');
+        $data = $repo->findByCompania( $idCompania);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
 
 
 };

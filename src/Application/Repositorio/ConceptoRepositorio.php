@@ -27,10 +27,7 @@ class ConceptoRepositorio
         $response = array();
         $statusCode=500;
         $mensaje='';	
-        try {
-            $conn=OpenCon();
-            $sql ="select * from ".$this->tabla.' where usuario=? ';
-            
+        try {                       
             $conn=OpenCon();            
             $stmt = $conn->prepare('select c.id, c.codigo, c.descripcion, c.observacion, c.usuario, c.fregistro, c.esingreso,  c.compania, c.saldo, cu.codigo cuenta, cu.id idcuenta from '.$this->tabla.' c left join    '.$this->tablaCuenta.' cu on c.cuenta=cu.id  where c.compania=? ');
             $stmt->bind_param('i', $idCompania); // 's' specifies the variable type => 'string' a las dos variables            
