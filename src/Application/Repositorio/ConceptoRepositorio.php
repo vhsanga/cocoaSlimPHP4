@@ -58,8 +58,11 @@ class ConceptoRepositorio
         $codigo = $input->codigo;
         $descripcion = $input->descripcion;
         $observacion = $input->observacion;
-        $usuario = $input->usuario;
+        $cuenta = $input->cuenta =='' ? null: $input->cuenta;
+        $observacion = $input->observacion;
+        $esingreso = $input->esingreso;
         $compania = $input->compania;
+        $usuario = $input->usuario;
        
         $data = array();               
         $response = array();
@@ -67,8 +70,8 @@ class ConceptoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (codigo, descripcion, observacion, usuario, fregistro, compania) values (?,?,?,?,now(),?)  ');
-            $stmt->bind_param('sssii', $codigo, $descripcion, $observacion, $usuario, $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (codigo, descripcion, observacion, usuario, fregistro, cuenta, saldo, esingreso, compania) values (?,?,?,?,now(),?,0,?,?)  ');
+            $stmt->bind_param('sssiiii', $codigo, $descripcion, $observacion, $usuario, $cuenta, $esingreso,  $compania); // 's' specifies the variable type => 'string' a las dos variables            
             $status = $stmt->execute();  
             $idConcepto = $conn->insert_id;
             if ($status === false) {    

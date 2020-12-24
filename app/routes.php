@@ -202,6 +202,27 @@ return function (App $app) {
     });
 
 
+    $app->get('/cuentas_/{idCompania}', function (Request $request, Response $response) use($app) {               
+        $repo = new CuentaRepositorio;
+        $idCompania = $request->getAttribute('idCompania');
+        $data = $repo->findByCompaniaAll( $idCompania);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+    $app->post('/cuentas/registrar', function (Request $request, Response $response) use($app) {               
+        $repo = new CuentaRepositorio;
+        $params = (array)$request->getParsedBody();    
+        $input = json_decode(file_get_contents('php://input'));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpBadRequestException($this->request, 'Malformed JSON input.');
+        }        
+        $data = $repo->registrarCuenta($input);        
+        $response->getBody()->write($data);        
+        return $response->withHeader('Content-Type', 'application/json');;
+    });
+    
 
 };
 
