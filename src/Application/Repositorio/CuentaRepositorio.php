@@ -109,7 +109,7 @@ class CuentaRepositorio
             }else{
                 $statusCode=200; 
                 $response["message"]["type"] = "OK"; 
-                $response["message"]["description"] = "Cuenta ingresado correctamente"; 
+                $response["message"]["description"] = "Cuenta ingresada correctamente"; 
                 $data = array('id'=>$id ) ;
             }                                                                                                                    
             $stmt->close();
