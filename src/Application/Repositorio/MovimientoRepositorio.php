@@ -25,15 +25,15 @@ class MovimientoRepositorio
         return $usuarios;
     }
 
-    function findByUsuarioAndFecha($idUsuario, $fInicio, $fFin){
+    function findByUsuarioAndFecha($idCompania, $fInicio, $fFin){
         $usuarios = array();               
         $response = array();
         $statusCode=500;
         $mensaje='';	
         try {            
             $conn=OpenCon();            
-            $stmt = $conn->prepare('select m.id, m.usuario, m.tipooperacion, case when m.tipooperacion =\'ING\' then \'+\' end as signo,  m.valor, m.fecha, m.detalle from '.$this->tabla.' m   where m.usuario=? and  m.fecha between ? and ? ');
-            $stmt->bind_param('iss', $idUsuario,$fInicio, $fFin); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt = $conn->prepare('select m.id, m.usuario, m.tipooperacion, case when m.tipooperacion =\'ING\' then \'+\' end as signo,  m.valor, m.fecha, m.detalle from '.$this->tabla.' m   where m.compania=? and  m.fecha between ? and ? ');
+            $stmt->bind_param('iss', $idCompania,$fInicio, $fFin); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
             if ( $result) {
@@ -61,7 +61,7 @@ class MovimientoRepositorio
     /**
      * Listar un resumen de ingresos-egresos  agrupados por meses
      */
-    function findByUsuarioResumen($idUsuario){
+    function findByUsuarioResumen($idCompania){
         $usuarios = array();               
         $response = array();
         $statusCode=500;
@@ -82,8 +82,8 @@ class MovimientoRepositorio
             '  when  month(fecha) =11 then \'Noviembre\'  '.
             '  when  month(fecha) =12 then \'Diciembre\'  '.
             '  end as   mes, month(fecha) as _mes,'.
-            ' count(id) as registros, sum(valor) as valor from ' .$this->tabla.' where usuario=? GROUP BY 1,2,3  ORDER by _mes asc');
-            $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
+            ' count(id) as registros, sum(valor) as valor from ' .$this->tabla.' where compania=? GROUP BY 1,2,3  ORDER by _mes asc');
+            $stmt->bind_param('i', $idCompania); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
             if ( $result) {
@@ -112,7 +112,7 @@ class MovimientoRepositorio
     /**
      * Listar un resumen de ingresos-egresos  agrupados por meses
      */
-    function findResumenConceptoByUsuario($idUsuario){
+    function findResumenConceptoByCompania($idCompania){
         $usuarios = array();               
         $response = array();
         $statusCode=500;
@@ -121,10 +121,10 @@ class MovimientoRepositorio
             $conn=OpenCon();            
             $stmt = $conn->prepare('select c.id as id, c.codigo  as concepto, '.
                 'count(m.id) as registros, sum(m.valor) as valor '.
-                'from movimiento m inner join concepto c on m.conceptoprincipal = c.id where m.usuario=? '.
+                'from movimiento m inner join concepto c on m.conceptoprincipal = c.id where m.compania=? '.
                 'GROUP BY 1 '.
                 'ORDER by valor asc');
-            $stmt->bind_param('i', $idUsuario); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->bind_param('i', $idCompania); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
             if ( $result) {

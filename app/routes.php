@@ -157,32 +157,32 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');;
     });
 
-    $app->get('/movimiento/resumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
+    $app->get('/movimiento/resumen/{idCompania}', function (Request $request, Response $response) use($app) {               
         $repo = new MovimientoRepositorio;
-        $idUsuario = $request->getAttribute('idUsuario');
-        $data = $repo->findByUsuarioResumen( $idUsuario);        
+        $idCompania = $request->getAttribute('idCompania');
+        $data = $repo->findByUsuarioResumen( $idCompania);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');
     });
 
-    $app->get('/movimiento/{idUsuario}/{fInicio}/{fFin}', function (Request $request, Response $response) use($app) {               
+    $app->get('/movimiento/{idCompania}/{fInicio}/{fFin}', function (Request $request, Response $response) use($app) {               
         $repo = new MovimientoRepositorio;
-        $idUsuario = $request->getAttribute('idUsuario');
+        $idCompania = $request->getAttribute('idCompania');
         $fInicio = $request->getAttribute('fInicio');
         $fFin = $request->getAttribute('fFin');
-        $data = $repo->findByUsuarioAndFecha( $idUsuario, $fInicio, $fFin);        
+        $data = $repo->findByUsuarioAndFecha( $idCompania, $fInicio, $fFin);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');
     });
 
-    $app->get('/movimiento/conceptoresumen/{idUsuario}', function (Request $request, Response $response) use($app) {               
+    $app->get('/movimiento/conceptoresumen/{idCompania}', function (Request $request, Response $response) use($app) {               
         $repo = new MovimientoRepositorio;
-        $idUsuario = $request->getAttribute('idUsuario');
+        $idCompania = $request->getAttribute('idCompania');
         $fInicio = $request->getAttribute('fInicio');
         $fFin = $request->getAttribute('fFin');
-        $data = $repo->findResumenConceptoByUsuario( $idUsuario, $fInicio, $fFin);        
+        $data = $repo->findResumenConceptoByCompania( $idCompania, $fInicio, $fFin);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');
