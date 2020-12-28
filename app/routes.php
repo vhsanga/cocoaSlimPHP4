@@ -189,6 +189,17 @@ return function (App $app) {
     });
 
 
+    $app->get('/movimientoscuenta/{idCuenta}', function (Request $request, Response $response) use($app) {               
+        $repo = new MovimientoRepositorio;
+        $idCuenta = $request->getAttribute('idCuenta');       
+        $data = $repo->findMovimientosByCuenta( $idCuenta);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+
+
     /**
      * Cuentas *************************************************************************
      */

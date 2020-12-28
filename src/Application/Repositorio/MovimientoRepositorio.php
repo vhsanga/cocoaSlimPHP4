@@ -8,6 +8,7 @@ class MovimientoRepositorio
     protected $atributos = ['id','usuario', 'tipooperacion', 'signo', 'valor', 'fecha', 'detalle' ];
     protected $atributosResumen = ['anio','mes', 'registros', 'valor' ];
     protected $atributosConceptos = ['id','concepto', 'registros', 'valor' ];
+    protected $atributosMovimiento = ['id','valor', 'detalle', 'fecha'];
     protected $tabla="movimiento";
     protected $tablaConcepto="concepto";
     protected $tablaCta="cuenta";
@@ -283,6 +284,39 @@ class MovimientoRepositorio
         }
         $response["statusCode"] = $statusCode;	   
 	    $response["data"] = $data;
+        return json_encode($response);
+    }
+
+
+
+    function findMovimientosByCuenta($id){
+        $usuarios = array();               
+        $response = array();
+        $statusCode=500;
+        $mensaje='';	
+        try {
+            $conn=OpenCon();            
+            $stmt = $conn->prepare("select m.id, m.valor, m.detalle, m.fecha from ".$this->tabla."  m inner join ".$this->tablaConcepto."  c on  m.conceptoprincipal = c.id where c.cuenta = ? ");
+            $stmt->bind_param('i', $id); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ( $result) {
+                $usuarios = $this->leerResultado($result, $this->atributosMovimiento); 
+                $statusCode=200; 
+                $response["message"]["type"] = "OK"; 
+                $response["message"]["description"] = "Consulta Correcta";                                               
+            }else {
+                $response["message"]["type"] = "DataBase"; 
+                $response["message"]["description"] = $conn->error; 
+            }                             
+            $stmt->close();
+            $conn->close();
+        } catch (Exception $e) {
+            $response["message"]["type"] = "DataBase"; 
+            $response["message"]["description"] = $e->getMessage(); 
+        }
+        $response["statusCode"] = $statusCode;	   
+	    $response["data"] = $usuarios;
         return json_encode($response);
     }
 }
