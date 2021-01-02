@@ -63,7 +63,8 @@ class ConceptoRepositorio
         $esingreso = $input->esingreso;
         $compania = $input->compania;
         $usuario = $input->usuario;
-       
+        
+        $esingreso = $esingreso == 'true' ? true:false ; 
         $data = array();               
         $response = array();
         $statusCode=500;
@@ -71,7 +72,7 @@ class ConceptoRepositorio
         try {
             $conn=OpenCon();            
             $stmt = $conn->prepare('INSERT INTO '.$this->tabla.' (codigo, descripcion, observacion, usuario, fregistro, cuenta, saldo, esingreso, compania) values (?,?,?,?,now(),?,0,?,?)  ');
-            $stmt->bind_param('sssiiii', $codigo, $descripcion, $observacion, $usuario, $cuenta, $esingreso,  $compania); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->bind_param('sssiiii', $codigo, $descripcion, $observacion, $usuario, $cuenta, $esingreso,  $compania); // 's' specifies the variable type => 'string' a las dos variables                        
             $status = $stmt->execute();  
             $idConcepto = $conn->insert_id;
             if ($status === false) {    
