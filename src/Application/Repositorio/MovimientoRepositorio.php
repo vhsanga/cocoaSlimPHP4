@@ -8,7 +8,7 @@ class MovimientoRepositorio
     protected $atributos = ['id','usuario', 'tipooperacion', 'signo', 'valor', 'fecha', 'detalle' ];
     protected $atributosResumen = ['anio','mes', 'registros', 'valor' ];
     protected $atributosConceptos = ['id','concepto', 'registros', 'valor' ];
-    protected $atributosMovimiento = ['id','valor', 'detalle', 'fecha'];
+    protected $atributosMovimiento = ['id','valor', 'tipooperacion', 'detalle', 'fecha'];
     protected $tabla="movimiento";
     protected $tablaConcepto="concepto";
     protected $tablaCta="cuenta";
@@ -296,7 +296,7 @@ class MovimientoRepositorio
         $mensaje='';	
         try {
             $conn=OpenCon();            
-            $stmt = $conn->prepare("select m.id, m.valor, m.detalle, m.fecha from ".$this->tabla."  m inner join ".$this->tablaConcepto."  c on  m.conceptoprincipal = c.id where c.cuenta = ? ");
+            $stmt = $conn->prepare("select m.id, m.valor, m.tipooperacion, m.detalle, m.fecha from ".$this->tabla."  m inner join ".$this->tablaConcepto."  c on  m.conceptoprincipal = c.id where c.cuenta = ? ");
             $stmt->bind_param('i', $id); // 's' specifies the variable type => 'string' a las dos variables            
             $stmt->execute();
             $result = $stmt->get_result();
