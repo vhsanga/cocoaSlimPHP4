@@ -234,6 +234,14 @@ return function (App $app) {
         return $response->withHeader('Content-Type', 'application/json');;
     });
     
+    $app->get('/cuenta/{id}', function (Request $request, Response $response) use($app) {               
+        $repo = new CuentaRepositorio;
+        $id = $request->getAttribute('id');
+        $data = $repo->findById( $id);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
 
 };
 

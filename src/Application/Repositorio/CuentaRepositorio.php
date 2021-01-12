@@ -84,6 +84,38 @@ class CuentaRepositorio
         return json_encode($response);
     }
 
+    function findById($id){
+        $usuarios = array();               
+        $response = array();
+        $statusCode=500;
+        $mensaje='';	
+        try {
+            $conn=OpenCon();            
+            $stmt = $conn->prepare("select * from ".$this->tabla." where id =? ");
+            $stmt->bind_param('i', $id); // 's' specifies the variable type => 'string' a las dos variables            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ( $result) {
+                $usuarios = $this->leerResultado($result, $this->atributos); 
+                $statusCode=200; 
+                $response["message"]["type"] = "OK"; 
+                $response["message"]["description"] = "Consulta Correcta";                                               
+            }else {
+                $response["message"]["type"] = "DataBase"; 
+                $response["message"]["description"] = $conn->error; 
+            }                             
+            $stmt->close();
+            $conn->close();
+        } catch (Exception $e) {
+            $response["message"]["type"] = "DataBase"; 
+            $response["message"]["description"] = $e->getMessage(); 
+        }
+        $response["statusCode"] = $statusCode;	   
+	    $response["data"] = $usuarios;
+        return json_encode($response);
+    }
+
+
     function registrarCuenta($input){        
         $nombre = $input->nombre;
         $codigo = $input->codigo;        
