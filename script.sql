@@ -72,7 +72,7 @@ CREATE TABLE `usuario` (
   PRIMARY KEY (`id`),
   KEY `usuario_detallecatalogo_fk` (`estadousuario`),
   KEY `usuario_compania_fk` (`compania`),
-  KEY `usuario_usuario_idx` (`usuario`,`compania`) USING BTREE,
+  UNIQUE KEY `usuario_usuario_IDX` (`usuario`) USING BTREE,
   CONSTRAINT `usuario_compania_fk` FOREIGN KEY (`compania`) REFERENCES `compania` (`id`),
   CONSTRAINT `usuario_detallecatalogo_fk` FOREIGN KEY (`estadousuario`) REFERENCES `detallecatalogo` (`codigo`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

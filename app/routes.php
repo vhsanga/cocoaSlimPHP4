@@ -15,6 +15,7 @@ require_once  ROOT_PATH.'/src/Application/Repositorio/CatalogoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/ConceptoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/MovimientoRepositorio.php';
 require_once  ROOT_PATH.'/src/Application/Repositorio/CuentaRepositorio.php';
+require_once  ROOT_PATH.'/src/Application/Repositorio/ContableRepositorio.php';
 
 
 return function (App $app) {
@@ -238,6 +239,21 @@ return function (App $app) {
         $repo = new CuentaRepositorio;
         $id = $request->getAttribute('id');
         $data = $repo->findById( $id);        
+        $response->getBody()->write($data);        
+        return $response
+                ->withHeader('Content-Type', 'application/json');
+    });
+
+
+     /**
+     * Contable *************************************************************************
+     */
+    $app->get('/contable/{idCompania}/{fechaI}/{fechaF}', function (Request $request, Response $response) use($app) {               
+        $repo = new ContableRepositorio;
+        $idCompania = $request->getAttribute('idCompania');
+        $fechaI = $request->getAttribute('fechaI');
+        $fechaF = $request->getAttribute('fechaF');
+        $data = $repo->findLibroDiarioByFecha( $idCompania, $fechaI, $fechaF);        
         $response->getBody()->write($data);        
         return $response
                 ->withHeader('Content-Type', 'application/json');
