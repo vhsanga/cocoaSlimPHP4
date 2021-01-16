@@ -189,7 +189,7 @@ final class ResourceOperations
             'PDF_utf8_to_utf16',
             'PDO::pgsqlLOBOpen',
             'RarEntry::getStream',
-            'SQLite3::openBlob',
+            //'SQLite3::openBlob',
             'SWFMovie::saveToFile',
             'SplFileInfo::openFile',
             'SplFileObject::openFile',
